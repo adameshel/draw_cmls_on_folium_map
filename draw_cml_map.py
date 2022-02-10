@@ -45,6 +45,11 @@ def draw_cml_map(out_path,
         df_md['Link Carrier'] = carrier
 
     df_md.drop_duplicates(subset='Link ID', inplace=True)
+
+    df_bool = df_md['Rx Site Longitude'].astype(bool)
+    df_md = df_md[df_bool]
+    df_md.reset_index(inplace=True, drop=True)
+
     try:
         df_md = df_md[df_md['Rx Site Longitude'] < area_max_lon]
         df_md = df_md[df_md['Tx Site Longitude'] < area_max_lon]
@@ -67,6 +72,7 @@ def draw_cml_map(out_path,
         pass
 
     df_md.reset_index(inplace=True,drop=True)
+    num_cmls_map = len(df_md['Link ID'])
 
     grid = []
     if not handle:
@@ -80,9 +86,11 @@ def draw_cml_map(out_path,
     for i,link in df_md.iterrows():
         if link['Link ID'] in list_of_link_id_to_drop:
             print('Link ID' + str(link['Link ID']) + ' has been dropped')
+            num_cmls_map = num_cmls_map - 1
             continue
         if math.isnan(link['Rx Site Latitude']):
             print('No metadata for link ' + str(link['Link ID']))
+            num_cmls_map = num_cmls_map - 1
             continue
         else:
             folium.PolyLine([(link['Rx Site Latitude'], 
@@ -93,6 +101,9 @@ def draw_cml_map(out_path,
                             opacity=0.6,
                             popup=str(link['Link Carrier']) + '\nID: ' + str(link['Link ID'])
                         ).add_to(map_1)
+
+    print('Number of links in map: ')
+    print(num_cmls_map)
 
     # plot gridlines
     lat_min = np.nanmin((np.nanmin(df_md['Tx Site Latitude'].values),
@@ -125,5 +136,7 @@ def draw_cml_map(out_path,
                                 opacity=0.5,popup=str(round(g[0][1],5))).add_to(map_1)
 
     map_1.save(str(out_path.joinpath(name_of_map_file)))
+
+    print('Map under the name ' + name_of_map_file + ' was generated.')
     
     return map_1
