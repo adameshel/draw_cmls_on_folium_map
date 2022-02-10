@@ -40,6 +40,10 @@ def draw_cml_map(out_path,
     meta_path = data_path.joinpath(metadata_file_name)
     
     df_md = pd.read_csv(meta_path)
+    if 'Link Carrier' not in df_md.columns.values:
+        carrier = 'Unknown carrier'
+        df_md['Link Carrier'] = carrier
+
     df_md.drop_duplicates(subset='Link ID', inplace=True)
     try:
         df_md = df_md[df_md['Rx Site Longitude'] < area_max_lon]
@@ -86,8 +90,9 @@ def draw_cml_map(out_path,
                              (link['Tx Site Latitude'], 
                               link['Tx Site Longitude'])], 
                             color=color_of_links, 
-                            opacity=0.7, 
-                            popup=str(link['Link ID'])).add_to(map_1)
+                            opacity=0.6,
+                            popup=str(link['Link Carrier']) + '\nID: ' + str(link['Link ID'])
+                        ).add_to(map_1)
 
     # plot gridlines
     lat_min = np.nanmin((np.nanmin(df_md['Tx Site Latitude'].values),
