@@ -15,6 +15,8 @@ def draw_cml_map(out_path,
                  area_min_lat=np.nan,
                  area_max_lat=np.nan,
                  list_of_link_id_to_drop=[],
+                 list_of_link_id_to_color=[],
+                 color_of_specific_links='red',
                  color_of_links='purple',
                  gridlines_on=True
             ):
@@ -49,6 +51,19 @@ def draw_cml_map(out_path,
     df_bool = df_md['Rx Site Longitude'].astype(bool)
     df_md = df_md[df_bool]
     df_md.reset_index(inplace=True, drop=True)
+
+    if math.isnan(area_min_lon):
+        area_min_lon = np.nanmin((np.nanmin(df_md['Tx Site Longitude'].values),
+                        np.nanmin(df_md['Rx Site Longitude'].values)))
+    if math.isnan(area_max_lon):
+        area_max_lon = np.nanmax((np.nanmax(df_md['Tx Site Longitude'].values),
+                        np.nanmax(df_md['Rx Site Longitude'].values)))
+    if math.isnan(area_min_lat):
+        area_min_lat = np.nanmin((np.nanmin(df_md['Tx Site Latitude'].values),
+                        np.nanmin(df_md['Rx Site Latitude'].values)))
+    if math.isnan(area_max_lat):
+        area_max_lat = np.nanmax((np.nanmax(df_md['Tx Site Latitude'].values),
+                        np.nanmax(df_md['Rx Site Latitude'].values)))
 
     try:
         df_md = df_md[df_md['Rx Site Longitude'] < area_max_lon]
@@ -104,6 +119,18 @@ def draw_cml_map(out_path,
 
     print('Number of links in map: ')
     print(num_cmls_map)
+
+    for l_color in list_of_link_id_to_color:
+        link = df_md.loc[df_md['Link ID'] == l_color]
+        folium.PolyLine([(float(link['Rx Site Latitude'].values),
+                          float(link['Rx Site Longitude'].values)),
+                         (float(link['Tx Site Latitude'].values),
+                          float(link['Tx Site Longitude'].values))],
+                        color=color_of_specific_links,
+                        opacity=0.8,
+                        popup=str(link['Link Carrier'].values) + '\nID: ' + str(link['Link ID'].values)
+                        ).add_to(map_1)
+
 
     # plot gridlines
     lat_min = np.nanmin((np.nanmin(df_md['Tx Site Latitude'].values),
