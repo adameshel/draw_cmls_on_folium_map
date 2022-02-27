@@ -24,7 +24,7 @@ def draw_cml_map(out_path,
     out_path: str, path to output
     data_path: str, path to metadata file
     metadata_file_nameh: str, .csv file name
-    handle: folium.vector_layers.PolyLine, a handle of an exsisting map you wish to
+    handle: folium.vector_layers.PolyLine, a handle of an existing map you wish to
     edit
     name_of_map_file: str, name of the output file
     num_of_gridlines: int, number of gridlines for lat and for lon
@@ -33,8 +33,8 @@ def draw_cml_map(out_path,
     list_of_link_id_to_drop: list of strings, links you wish to discard 
     color_of_links: str, color of links from a given csv file
     
-    The function returns a handle for further edditing of the .html file.
-    By using the handle multiple companies can be plotted by calling the finction
+    The function returns a handle for further editing of the .html file.
+    By using the handle multiple companies can be plotted by calling the function
     for each of them while drawing them in different colors.
     '''
     out_path = Path(out_path)
