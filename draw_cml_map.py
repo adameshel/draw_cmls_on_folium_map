@@ -3,10 +3,15 @@ import folium
 import numpy as np
 import math
 from pathlib import Path
+import os
+import matplotlib.pyplot as plt
+import vincent
+import json
 
 def draw_cml_map(out_path,
                  data_path,
                  metadata_file_name,
+                 rawdata_dir=None,
                  handle=None,
                  name_of_map_file='link_map1.html',
                  num_of_gridlines=30,
@@ -40,6 +45,8 @@ def draw_cml_map(out_path,
     out_path = Path(out_path)
     data_path = Path(data_path)
     meta_path = data_path.joinpath(metadata_file_name)
+    if rawdata_dir:
+        rawdata_path = data_path.joinpath(rawdata_dir)
     
     df_md = pd.read_csv(meta_path)
     if 'Link Carrier' not in df_md.columns.values:
@@ -99,8 +106,9 @@ def draw_cml_map(out_path,
         map_1 = handle
 
     for i,link in df_md.iterrows():
-        if link['Link ID'] in list_of_link_id_to_drop:
-            print('Link ID' + str(link['Link ID']) + ' has been dropped')
+        link_id = link['Link ID']
+        if link_id in list_of_link_id_to_drop:
+            print('Link ID' + str(link_id) + ' has been dropped')
             num_cmls_map = num_cmls_map - 1
             continue
         if math.isnan(link['Rx Site Latitude']):
@@ -108,28 +116,70 @@ def draw_cml_map(out_path,
             num_cmls_map = num_cmls_map - 1
             continue
         else:
-            folium.PolyLine([(link['Rx Site Latitude'], 
-                              link['Rx Site Longitude']),
-                             (link['Tx Site Latitude'], 
-                              link['Tx Site Longitude'])], 
-                            color=color_of_links, 
-                            opacity=0.6,
-                            popup=str(link['Link Carrier']) + '\nID: ' + str(link['Link ID'])
-                        ).add_to(map_1)
+            if rawdata_dir:
+                try:
+                    appended_data = []
+                    # loop over raw data minimum rsl 15 min
+                    for filename in sorted(os.listdir(rawdata_path)):
+                        if 'SINK_' + link_id in filename:
+                            df_temp = pd.read_csv(rawdata_path.joinpath(filename))
+                            appended_data.append(df_temp)
+                    df_ts = pd.concat(appended_data)
+                    df_ts = df_ts[df_ts['Interval'] == 15]
+                    df_ts.reset_index(inplace=True, drop=True)
 
+                    df = df_ts[['Time', 'PowerRLTMmin']]
+                    df.reset_index(inplace=True, drop=True)
+                    timeseries = vincent.Line(df[['PowerRLTMmin']], height=350, width=600)
+                    timeseries.legend(title=str(link['Link Carrier']) + '\nID: ' + str(link['Link ID']))
+                    data_json = json.loads(timeseries.to_json())
+                    v = folium.features.Vega(data_json, width=750, height=400)
+                    p = folium.Popup(max_width=850)
+
+                    pl = folium.PolyLine([(link['Rx Site Latitude'],
+                                           link['Rx Site Longitude']),
+                                          (link['Tx Site Latitude'],
+                                           link['Tx Site Longitude'])],
+                                         color=color_of_links,
+                                         opacity=0.6
+                                         ).add_to(map_1)
+                    pl.add_child(p)
+                    p.add_child(v)
+                except:
+                    pass
+
+
+            else:
+                folium.PolyLine([(link['Rx Site Latitude'],
+                                  link['Rx Site Longitude']),
+                                 (link['Tx Site Latitude'],
+                                  link['Tx Site Longitude'])],
+                                color=color_of_links,
+                                opacity=0.6,
+                                popup=str(link['Link Carrier']) + '\nID: ' + str(link['Link ID'])
+                            ).add_to(map_1)
+            # print(p)
+            # pl.add_child(p)
+            # p.add_child(v)
+    # popup = str(link['Link Carrier']) + '\nID: ' + str(link['Link ID'])
     print('Number of links in map: ')
     print(num_cmls_map)
+    print(str(out_path.joinpath(name_of_map_file)))
+    map_1.save(str(out_path.joinpath(name_of_map_file)))
 
     for l_color in list_of_link_id_to_color:
-        link = df_md.loc[df_md['Link ID'] == l_color]
-        folium.PolyLine([(float(link['Rx Site Latitude'].values),
-                          float(link['Rx Site Longitude'].values)),
-                         (float(link['Tx Site Latitude'].values),
-                          float(link['Tx Site Longitude'].values))],
-                        color=color_of_specific_links,
-                        opacity=0.8,
-                        popup=str(link['Link Carrier'].values) + '\nID: ' + str(link['Link ID'].values)
-                        ).add_to(map_1)
+        try:
+            link = df_md.loc[df_md['Link ID'] == l_color]
+            folium.PolyLine([(float(link['Rx Site Latitude'].values),
+                              float(link['Rx Site Longitude'].values)),
+                             (float(link['Tx Site Latitude'].values),
+                              float(link['Tx Site Longitude'].values))],
+                            color=color_of_specific_links,
+                            opacity=0.8,
+                            popup=str(link['Link Carrier'].values) + '\nID: ' + str(link['Link ID'].values)
+                            ).add_to(map_1)
+        except:
+            pass
 
 
     # plot gridlines
