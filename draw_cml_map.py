@@ -4,7 +4,6 @@ import numpy as np
 import math
 from pathlib import Path
 import os
-import matplotlib.pyplot as plt
 import vincent
 import json
 
@@ -97,10 +96,10 @@ def draw_cml_map(out_path,
         pass
 
     if distort_lat_lon:
-        df_md['Distort Rx Site Longitude'] = np.random.randint(0, 10, df_md.shape[0]) / 10000
-        df_md['Distort Tx Site Longitude'] = np.random.randint(0, 10, df_md.shape[0]) / 10000
-        df_md['Distort Rx Site Latitude'] = np.random.randint(0, 10, df_md.shape[0]) / 10000
-        df_md['Distort Tx Site Latitude'] = np.random.randint(0, 10, df_md.shape[0]) / 10000
+        df_md['Distort Rx Site Longitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
+        df_md['Distort Tx Site Longitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
+        df_md['Distort Rx Site Latitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
+        df_md['Distort Tx Site Latitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
 
         df_md['Rx Site Longitude'] = df_md['Rx Site Longitude'] + df_md['Distort Rx Site Longitude']
         df_md['Tx Site Longitude'] = df_md['Tx Site Longitude'] + df_md['Distort Tx Site Longitude']
@@ -121,6 +120,9 @@ def draw_cml_map(out_path,
 
     for i,link in df_md.iterrows():
         link_id = link['Link ID']
+        color = color_of_links
+        if link_id in list_of_link_id_to_color:
+            color = color_of_specific_links
         if link_id in list_of_link_id_to_drop:
             print('Link ID' + str(link_id) + ' has been dropped')
             num_cmls_map = num_cmls_map - 1
@@ -157,15 +159,13 @@ def draw_cml_map(out_path,
                                            link['Rx Site Longitude']),
                                           (link['Tx Site Latitude'],
                                            link['Tx Site Longitude'])],
-                                         color=color_of_links,
+                                         color=color,
                                          opacity=0.6
                                          ).add_to(map_1)
                     pl.add_child(p)
                     p.add_child(v)
                 except:
                     pass
-
-
             else:
                 folium.PolyLine([(link['Rx Site Latitude'],
                                   link['Rx Site Longitude']),
@@ -175,28 +175,25 @@ def draw_cml_map(out_path,
                                 opacity=0.6,
                                 popup=str(link['Link Carrier']) + '\nID: ' + str(link['Link ID'])
                             ).add_to(map_1)
-            # print(p)
-            # pl.add_child(p)
-            # p.add_child(v)
-    # popup = str(link['Link Carrier']) + '\nID: ' + str(link['Link ID'])
+
     print('Number of links in map: ')
     print(num_cmls_map)
     print(str(out_path.joinpath(name_of_map_file)))
     map_1.save(str(out_path.joinpath(name_of_map_file)))
 
-    for l_color in list_of_link_id_to_color:
-        try:
-            link = df_md.loc[df_md['Link ID'] == l_color]
-            folium.PolyLine([(float(link['Rx Site Latitude'].values),
-                              float(link['Rx Site Longitude'].values)),
-                             (float(link['Tx Site Latitude'].values),
-                              float(link['Tx Site Longitude'].values))],
-                            color=color_of_specific_links,
-                            opacity=0.8,
-                            popup=str(link['Link Carrier'].values) + '\nID: ' + str(link['Link ID'].values)
-                            ).add_to(map_1)
-        except:
-            pass
+    # for l_color in list_of_link_id_to_color:
+    #     try:
+    #         link = df_md.loc[df_md['Link ID'] == l_color]
+    #         folium.PolyLine([(float(link['Rx Site Latitude'].values),
+    #                           float(link['Rx Site Longitude'].values)),
+    #                          (float(link['Tx Site Latitude'].values),
+    #                           float(link['Tx Site Longitude'].values))],
+    #                         color=color_of_specific_links,
+    #                         opacity=0.8,
+    #                         popup=str(link['Link Carrier'].values) + '\nID: ' + str(link['Link ID'].values)
+    #                         ).add_to(map_1)
+    #     except:
+    #         pass
 
 
     # plot gridlines
