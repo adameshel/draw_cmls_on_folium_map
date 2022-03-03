@@ -14,7 +14,7 @@ def draw_cml_map(out_path,
                  rawdata_dir=None,
                  handle=None,
                  name_of_map_file='link_map1.html',
-                 num_of_gridlines=30,
+                 num_of_gridlines=None,
                  area_min_lon=np.nan,
                  area_max_lon=np.nan,
                  area_min_lat=np.nan,
@@ -23,21 +23,24 @@ def draw_cml_map(out_path,
                  list_of_link_id_to_color=[],
                  color_of_specific_links='red',
                  color_of_links='purple',
-                 gridlines_on=True
+                 distort_lat_lon=True
             ):
     '''Create a Folium interactive map of cmls:
-    out_path: str, path to output
-    data_path: str, path to metadata file
-    metadata_file_nameh: str, .csv file name
+    out_path: str, path to output.
+    data_path: str, path to metadata file.
+    metadata_file_nameh: str, .csv file name.
+    rawdata_dir: (optional) directory of raw data files (for now only SINK-SOURCE).
     handle: folium.vector_layers.PolyLine, a handle of an existing map you wish to
-    edit
-    name_of_map_file: str, name of the output file
-    num_of_gridlines: int, number of gridlines for lat and for lon
+    edit.
+    name_of_map_file: str, name of the output file.
+    num_of_gridlines: int, number of gridlines for lat and for lon.
     area_min_lon, area_max_lon, area_min_lat, area_max_lat: float, filter area
-    of interest by setting coordinates boundaries
-    list_of_link_id_to_drop: list of strings, links you wish to discard 
+    of interest by setting coordinates boundaries.
+    list_of_link_id_to_drop: list of strings, links you wish to discard .
+    list_of_link_id_to_color: color specific links in different colors.
     color_of_links: str, color of links from a given csv file
-    
+    Distort_lat_lon: Distort the coordinates to see links on the same hop when zoomed in.
+
     The function returns a handle for further editing of the .html file.
     By using the handle multiple companies can be plotted by calling the function
     for each of them while drawing them in different colors.
@@ -93,6 +96,17 @@ def draw_cml_map(out_path,
     except:
         pass
 
+    if distort_lat_lon:
+        df_md['Distort Rx Site Longitude'] = np.random.randint(0, 10, df_md.shape[0]) / 10000
+        df_md['Distort Tx Site Longitude'] = np.random.randint(0, 10, df_md.shape[0]) / 10000
+        df_md['Distort Rx Site Latitude'] = np.random.randint(0, 10, df_md.shape[0]) / 10000
+        df_md['Distort Tx Site Latitude'] = np.random.randint(0, 10, df_md.shape[0]) / 10000
+
+        df_md['Rx Site Longitude'] = df_md['Rx Site Longitude'] + df_md['Distort Rx Site Longitude']
+        df_md['Tx Site Longitude'] = df_md['Tx Site Longitude'] + df_md['Distort Tx Site Longitude']
+        df_md['Rx Site Latitude'] = df_md['Rx Site Latitude'] + df_md['Distort Rx Site Latitude']
+        df_md['Tx Site Latitude'] = df_md['Tx Site Latitude'] + df_md['Distort Tx Site Latitude']
+
     df_md.reset_index(inplace=True,drop=True)
     num_cmls_map = len(df_md['Link ID'])
 
@@ -127,12 +141,15 @@ def draw_cml_map(out_path,
                     df_ts = pd.concat(appended_data)
                     df_ts = df_ts[df_ts['Interval'] == 15]
                     df_ts.reset_index(inplace=True, drop=True)
+                    df_ts['Date'] = pd.to_datetime(df_ts['Time'])
 
-                    df = df_ts[['Time', 'PowerRLTMmin']]
-                    df.reset_index(inplace=True, drop=True)
+                    ## create json of each cml timeseries for plotting
+                    df = df_ts[['Date', 'PowerRLTMmin']]
+                    df.set_index('Date', inplace=True, drop=True)
                     timeseries = vincent.Line(df[['PowerRLTMmin']], height=350, width=600)
                     timeseries.legend(title=str(link['Link Carrier']) + '\nID: ' + str(link['Link ID']))
                     data_json = json.loads(timeseries.to_json())
+
                     v = folium.features.Vega(data_json, width=750, height=400)
                     p = folium.Popup(max_width=850)
 
@@ -183,33 +200,33 @@ def draw_cml_map(out_path,
 
 
     # plot gridlines
-    lat_min = np.nanmin((np.nanmin(df_md['Tx Site Latitude'].values),
-                        np.nanmin(df_md['Rx Site Latitude'].values)))
-    lon_min = np.nanmin((np.nanmin(df_md['Tx Site Longitude'].values),
-                        np.nanmin(df_md['Rx Site Longitude'].values)))
-    lat_max = np.nanmax((np.nanmax(df_md['Tx Site Latitude'].values),
-                        np.nanmax(df_md['Rx Site Latitude'].values)))
-    lon_max = np.nanmax((np.nanmax(df_md['Tx Site Longitude'].values),
-                        np.nanmax(df_md['Rx Site Longitude'].values)))
+    if num_of_gridlines:
+        lat_min = np.nanmin((np.nanmin(df_md['Tx Site Latitude'].values),
+                            np.nanmin(df_md['Rx Site Latitude'].values)))
+        lon_min = np.nanmin((np.nanmin(df_md['Tx Site Longitude'].values),
+                            np.nanmin(df_md['Rx Site Longitude'].values)))
+        lat_max = np.nanmax((np.nanmax(df_md['Tx Site Latitude'].values),
+                            np.nanmax(df_md['Rx Site Latitude'].values)))
+        lon_max = np.nanmax((np.nanmax(df_md['Tx Site Longitude'].values),
+                            np.nanmax(df_md['Rx Site Longitude'].values)))
 
-    lats = np.linspace(lat_min,lat_max,num_of_gridlines)
-    lons = np.linspace(lon_min,lon_max,num_of_gridlines)
+        lats = np.linspace(lat_min,lat_max,num_of_gridlines)
+        lons = np.linspace(lon_min,lon_max,num_of_gridlines)
 
-    for lat in lats:
-        grid.append([[lat, -180],[lat, 180]])
+        for lat in lats:
+            grid.append([[lat, -180],[lat, 180]])
 
-    for lon in lons:
-        grid.append([[-90, lon],[90, lon]])
-    
-    if gridlines_on:
+        for lon in lons:
+            grid.append([[-90, lon],[90, lon]])
+
         counter = 0
         for g in grid:
             if counter < len (lats):
-                folium.PolyLine(g, color="black", weight=0.5, 
+                folium.PolyLine(g, color="black", weight=0.5,
                                 opacity=0.5,popup=str(round(g[0][0],5))).add_to(map_1)
                 counter += 1
-            else: 
-                folium.PolyLine(g, color="black", weight=0.5, 
+            else:
+                folium.PolyLine(g, color="black", weight=0.5,
                                 opacity=0.5,popup=str(round(g[0][1],5))).add_to(map_1)
 
     map_1.save(str(out_path.joinpath(name_of_map_file)))
