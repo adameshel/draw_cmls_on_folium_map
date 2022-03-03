@@ -13,6 +13,7 @@ def draw_cml_map(out_path,
                  rawdata_dir=None,
                  handle=None,
                  name_of_map_file='link_map1',
+                 interval=15,
                  num_of_gridlines=None,
                  area_min_lon=np.nan,
                  area_max_lon=np.nan,
@@ -32,6 +33,7 @@ def draw_cml_map(out_path,
     handle: folium.vector_layers.PolyLine, a handle of an existing map you wish to
     edit.
     name_of_map_file: str, name of the output file.
+    interval: (int). 15 (default) for 15 minute measurement interval or 24 for 24 h
     num_of_gridlines: int, number of gridlines for lat and for lon.
     area_min_lon, area_max_lon, area_min_lat, area_max_lat: float, filter area
     of interest by setting coordinates boundaries.
@@ -157,14 +159,14 @@ def draw_cml_map(out_path,
             if rawdata_dir:
                 try:
                     appended_data = []
-                    # loop over raw data minimum rsl 15 min
+                    # loop over raw data rsl 15 min or 24 h
                     for filename in sorted(os.listdir(rawdata_path)):
                         if 'SINK_' + link_id in filename:
                         # if link_id in filename:
                             df_temp = pd.read_csv(rawdata_path.joinpath(filename))
                             appended_data.append(df_temp)
                     df_ts = pd.concat(appended_data, sort=False)
-                    df_ts = df_ts[df_ts['Interval'] == 15]
+                    df_ts = df_ts[df_ts['Interval'] == interval]
                     df_ts.reset_index(inplace=True, drop=True)
                     df_ts['Date'] = pd.to_datetime(df_ts['Time'])
 
