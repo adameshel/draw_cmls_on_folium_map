@@ -12,7 +12,7 @@ def draw_cml_map(out_path,
                  metadata_file_name,
                  rawdata_dir=None,
                  handle=None,
-                 name_of_map_file='link_map1.html',
+                 name_of_map_file='link_map1',
                  num_of_gridlines=None,
                  area_min_lon=np.nan,
                  area_max_lon=np.nan,
@@ -44,6 +44,8 @@ def draw_cml_map(out_path,
     By using the handle multiple companies can be plotted by calling the function
     for each of them while drawing them in different colors.
     '''
+
+    name_of_map_file = name_of_map_file + '.html'
     out_path = Path(out_path)
     data_path = Path(data_path)
     meta_path = data_path.joinpath(metadata_file_name)
@@ -180,21 +182,6 @@ def draw_cml_map(out_path,
     print(num_cmls_map)
     print(str(out_path.joinpath(name_of_map_file)))
     map_1.save(str(out_path.joinpath(name_of_map_file)))
-
-    # for l_color in list_of_link_id_to_color:
-    #     try:
-    #         link = df_md.loc[df_md['Link ID'] == l_color]
-    #         folium.PolyLine([(float(link['Rx Site Latitude'].values),
-    #                           float(link['Rx Site Longitude'].values)),
-    #                          (float(link['Tx Site Latitude'].values),
-    #                           float(link['Tx Site Longitude'].values))],
-    #                         color=color_of_specific_links,
-    #                         opacity=0.8,
-    #                         popup=str(link['Link Carrier'].values) + '\nID: ' + str(link['Link ID'].values)
-    #                         ).add_to(map_1)
-    #     except:
-    #         pass
-
 
     # plot gridlines
     if num_of_gridlines:
