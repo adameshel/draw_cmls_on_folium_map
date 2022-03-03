@@ -1,2 +1,7 @@
 numpy
 folium
+vincent
+os
+pathlib
+pandas
+json
