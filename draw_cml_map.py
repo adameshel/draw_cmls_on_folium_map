@@ -21,7 +21,7 @@ def draw_cml_map(out_path,
                  list_of_link_id_to_drop=[],
                  list_of_link_id_to_color=[],
                  color_of_specific_links='red',
-                 color_of_links='purple',
+                 color_of_links=None,
                  distort_lat_lon=True
             ):
     '''Create a Folium interactive map of cmls:
@@ -56,6 +56,25 @@ def draw_cml_map(out_path,
     if 'Link Carrier' not in df_md.columns.values:
         carrier = 'Unknown carrier'
         df_md['Link Carrier'] = carrier
+    else:
+        carriers = df_md['Link Carrier'].unique()
+        print('Carriers:')
+        print(carriers)
+        d_colors = {
+            'Cellcom': 'purple',
+            'Pelephone': 'blue',
+            'PHI': 'orange',
+            'SMBIT': 'white',
+            'Unknown carrier': 'green'
+        }
+        if color_of_links:
+            d_colors = {
+                'Cellcom': color_of_links,
+                'Pelephone': color_of_links,
+                'PHI': color_of_links,
+                'SMBIT': color_of_links,
+                'Unknown carrier': color_of_links
+            }
 
     df_md.drop_duplicates(subset='Link ID', inplace=True)
 
@@ -122,7 +141,8 @@ def draw_cml_map(out_path,
 
     for i,link in df_md.iterrows():
         link_id = link['Link ID']
-        color = color_of_links
+        # color = color_of_links
+        color = d_colors[link['Link Carrier']]
         if link_id in list_of_link_id_to_color:
             color = color_of_specific_links
         if link_id in list_of_link_id_to_drop:
@@ -140,9 +160,10 @@ def draw_cml_map(out_path,
                     # loop over raw data minimum rsl 15 min
                     for filename in sorted(os.listdir(rawdata_path)):
                         if 'SINK_' + link_id in filename:
+                        # if link_id in filename:
                             df_temp = pd.read_csv(rawdata_path.joinpath(filename))
                             appended_data.append(df_temp)
-                    df_ts = pd.concat(appended_data)
+                    df_ts = pd.concat(appended_data, sort=False)
                     df_ts = df_ts[df_ts['Interval'] == 15]
                     df_ts.reset_index(inplace=True, drop=True)
                     df_ts['Date'] = pd.to_datetime(df_ts['Time'])
@@ -150,12 +171,46 @@ def draw_cml_map(out_path,
                     ## create json of each cml timeseries for plotting
                     df = df_ts[['Date', 'PowerRLTMmin']]
                     df.set_index('Date', inplace=True, drop=True)
-                    timeseries = vincent.Line(df[['PowerRLTMmin']], height=350, width=600)
+                    timeseries = vincent.Line(df[['PowerRLTMmin']], height=350, width=750)
                     timeseries.legend(title=str(link['Link Carrier']) + '\nID: ' + str(link['Link ID']))
                     data_json = json.loads(timeseries.to_json())
 
-                    v = folium.features.Vega(data_json, width=750, height=400)
-                    p = folium.Popup(max_width=850)
+                    v = folium.features.Vega(data_json, width=950, height=400)
+                    p = folium.Popup(max_width=950)
+
+                    pl = folium.PolyLine([(link['Rx Site Latitude'],
+                                           link['Rx Site Longitude']),
+                                          (link['Tx Site Latitude'],
+                                           link['Tx Site Longitude'])],
+                                         color=color,
+                                         opacity=0.6
+                                         ).add_to(map_1)
+                    pl.add_child(p)
+                    p.add_child(v)
+                except:
+                    pass
+                try:
+                    appended_data = []
+                    # loop over raw data minimum rsl 15 min
+                    for filename in sorted(os.listdir(rawdata_path)):
+                        if 'RFInputPower_' + link_id in filename:
+                        # if link_id in filename:
+                            df_temp = pd.read_csv(rawdata_path.joinpath(filename))
+                            appended_data.append(df_temp)
+                    df_ts = pd.concat(appended_data, sort=False)
+                    df_ts = df_ts[df_ts['Interval'] == 15]
+                    df_ts.reset_index(inplace=True, drop=True)
+                    df_ts['Date'] = pd.to_datetime(df_ts['Time'])
+
+                    ## create json of each cml timeseries for plotting
+                    df = df_ts[['Date', 'RFInputPower']]
+                    df.set_index('Date', inplace=True, drop=True)
+                    timeseries = vincent.Line(df[['RFInputPower']], height=350, width=750)
+                    timeseries.legend(title=str(link['Link Carrier']) + '\nID: ' + str(link['Link ID']))
+                    data_json = json.loads(timeseries.to_json())
+
+                    v = folium.features.Vega(data_json, width=950, height=400)
+                    p = folium.Popup(max_width=950)
 
                     pl = folium.PolyLine([(link['Rx Site Latitude'],
                                            link['Rx Site Longitude']),
@@ -218,3 +273,6 @@ def draw_cml_map(out_path,
     print('Map under the name ' + name_of_map_file + ' was generated.')
     
     return map_1
+
+
+
