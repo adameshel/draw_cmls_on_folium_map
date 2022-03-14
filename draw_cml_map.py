@@ -226,11 +226,12 @@ def draw_cml_map(out_path,
                 except:
                     pass
             else:
+                color = d_colors[link['Link Carrier']]
                 folium.PolyLine([(link['Rx Site Latitude'],
                                   link['Rx Site Longitude']),
                                  (link['Tx Site Latitude'],
                                   link['Tx Site Longitude'])],
-                                color=color_of_links,
+                                color=color,
                                 opacity=0.6,
                                 popup=str(link['Link Carrier']) + '\nID: ' + str(link['Link ID'])
                             ).add_to(map_1)
