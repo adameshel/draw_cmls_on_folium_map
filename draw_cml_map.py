@@ -207,7 +207,48 @@ def draw_cml_map(out_path,
                     appended_data = []
                     # loop over raw data minimum rsl 15 min
                     for filename in sorted(os.listdir(rawdata_path)):
-                        if 'RFInputPower_' + link_id in filename:
+                        if ('RFInputPower_' + link_id in filename) & ('Pelephone' in filename):
+                        # if link_id in filename:
+                            df_temp = pd.read_csv(rawdata_path.joinpath(filename))
+                            appended_data.append(df_temp)
+                    df_ts = pd.concat(appended_data, sort=False)
+                    df_ts = df_ts[df_ts['Interval'] == interval]
+                    df_ts.reset_index(inplace=True, drop=True)
+                    df_ts['Date'] = pd.to_datetime(df_ts['Time'])
+
+                    ## create json of each cml timeseries for plotting
+                    df = df_ts[['Date', 'RFInputPower']]
+                    df.set_index('Date', inplace=True, drop=True)
+                    timeseries = vincent.Line(
+                        df[['RFInputPower']],
+                        height=350,
+                        width=750).axis_titles(
+                        x=link['Link Carrier'] + ':  (Date)',
+                        y='RSL (dB)'
+                    )
+                    timeseries.legend(title='Link ID: ' + str(link['Link ID']) +\
+                                            '\nHop ID: ' + str(link['Hop ID']))
+                    data_json = json.loads(timeseries.to_json())
+
+                    v = folium.features.Vega(data_json, width=1000, height=400)
+                    p = folium.Popup(max_width=1150)
+
+                    pl = folium.PolyLine([(link['Rx Site Latitude'],
+                                           link['Rx Site Longitude']),
+                                          (link['Tx Site Latitude'],
+                                           link['Tx Site Longitude'])],
+                                         color=color,
+                                         opacity=0.6
+                                         ).add_to(map_1)
+                    pl.add_child(p)
+                    p.add_child(v)
+                except:
+                    pass
+                try:
+                    appended_data = []
+                    # loop over raw data minimum rsl 15 min
+                    for filename in sorted(os.listdir(rawdata_path)):
+                        if ('RFInputPower_' + link_id in filename) & ('PHI' in filename):
                         # if link_id in filename:
                             df_temp = pd.read_csv(rawdata_path.joinpath(filename))
                             appended_data.append(df_temp)
