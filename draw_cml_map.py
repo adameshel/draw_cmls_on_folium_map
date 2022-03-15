@@ -55,6 +55,9 @@ def draw_cml_map(out_path,
         rawdata_path = data_path.joinpath(rawdata_dir)
     
     df_md = pd.read_csv(meta_path)
+    if 'Hop ID' not in df_md.columns.values:
+        hop_id = 'Not provided'
+        df_md['Hop ID'] = hop_id
     if 'Link Carrier' not in df_md.columns.values:
         carrier = 'Unknown carrier'
         df_md['Link Carrier'] = carrier
@@ -173,12 +176,19 @@ def draw_cml_map(out_path,
                     ## create json of each cml timeseries for plotting
                     df = df_ts[['Date', 'PowerRLTMmin']]
                     df.set_index('Date', inplace=True, drop=True)
-                    timeseries = vincent.Line(df[['PowerRLTMmin']], height=350, width=750)
-                    timeseries.legend(title=str(link['Link Carrier']) + '\nID: ' + str(link['Link ID']))
+                    timeseries = vincent.Line(
+                        df[['PowerRLTMmin']],
+                        height=350,
+                        width=750).axis_titles(
+                        x=link['Link Carrier'] + ':  (Date)',
+                        y='Signal level (dB)'
+                    )
+                    timeseries.legend(title='Link ID: ' + str(link['Link ID']) +\
+                                            '\nHop ID: ' + str(link['Hop ID']))
                     data_json = json.loads(timeseries.to_json())
 
-                    v = folium.features.Vega(data_json, width=950, height=400)
-                    p = folium.Popup(max_width=950)
+                    v = folium.features.Vega(data_json, width=1000, height=400)
+                    p = folium.Popup(max_width=1150)
 
                     pl = folium.PolyLine([(link['Rx Site Latitude'],
                                            link['Rx Site Longitude']),
@@ -207,12 +217,19 @@ def draw_cml_map(out_path,
                     ## create json of each cml timeseries for plotting
                     df = df_ts[['Date', 'RFInputPower']]
                     df.set_index('Date', inplace=True, drop=True)
-                    timeseries = vincent.Line(df[['RFInputPower']], height=350, width=750)
-                    timeseries.legend(title=str(link['Link Carrier']) + '\nID: ' + str(link['Link ID']))
+                    timeseries = vincent.Line(
+                        df[['RFInputPower']],
+                        height=350,
+                        width=750).axis_titles(
+                        x=link['Link Carrier'] + ':  (Date)',
+                        y='Signal level (dB)'
+                    )
+                    timeseries.legend(title='Link ID: ' + str(link['Link ID']) +\
+                                            '\nHop ID: ' + str(link['Hop ID']))
                     data_json = json.loads(timeseries.to_json())
 
-                    v = folium.features.Vega(data_json, width=950, height=400)
-                    p = folium.Popup(max_width=950)
+                    v = folium.features.Vega(data_json, width=1000, height=400)
+                    p = folium.Popup(max_width=1150)
 
                     pl = folium.PolyLine([(link['Rx Site Latitude'],
                                            link['Rx Site Longitude']),
@@ -233,7 +250,9 @@ def draw_cml_map(out_path,
                                   link['Tx Site Longitude'])],
                                 color=color,
                                 opacity=0.6,
-                                popup=str(link['Link Carrier']) + '\nID: ' + str(link['Link ID'])
+                                popup=str(link['Link Carrier']) +\
+                                      '\nLink ID: ' + str(link['Link ID']) +\
+                                       '\nHop ID: ' + str(link['Hop ID'])
                             ).add_to(map_1)
 
     print('Number of links in map: ')
