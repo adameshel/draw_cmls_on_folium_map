@@ -47,6 +47,8 @@ def draw_cml_map(out_path,
     for each of them while drawing them in different colors.
     '''
 
+    if not os.path.exists(out_path):
+        os.makedirs(out_path)
     name_of_map_file = name_of_map_file + '.html'
     out_path = Path(out_path)
     data_path = Path(data_path)
@@ -295,6 +297,5 @@ def draw_cml_map(out_path,
     print('Map under the name ' + name_of_map_file + ' was generated.')
     
     return map_1
-
 
 
