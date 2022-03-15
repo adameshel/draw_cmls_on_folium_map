@@ -181,7 +181,7 @@ def draw_cml_map(out_path,
                         height=350,
                         width=750).axis_titles(
                         x=link['Link Carrier'] + ':  (Date)',
-                        y='Signal level (dB)'
+                        y='RSL (dB)'
                     )
                     timeseries.legend(title='Link ID: ' + str(link['Link ID']) +\
                                             '\nHop ID: ' + str(link['Hop ID']))
@@ -210,7 +210,7 @@ def draw_cml_map(out_path,
                             df_temp = pd.read_csv(rawdata_path.joinpath(filename))
                             appended_data.append(df_temp)
                     df_ts = pd.concat(appended_data, sort=False)
-                    df_ts = df_ts[df_ts['Interval'] == 15]
+                    df_ts = df_ts[df_ts['Interval'] == interval]
                     df_ts.reset_index(inplace=True, drop=True)
                     df_ts['Date'] = pd.to_datetime(df_ts['Time'])
 
@@ -222,7 +222,7 @@ def draw_cml_map(out_path,
                         height=350,
                         width=750).axis_titles(
                         x=link['Link Carrier'] + ':  (Date)',
-                        y='Signal level (dB)'
+                        y='RSL (dB)'
                     )
                     timeseries.legend(title='Link ID: ' + str(link['Link ID']) +\
                                             '\nHop ID: ' + str(link['Hop ID']))
