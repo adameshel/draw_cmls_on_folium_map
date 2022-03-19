@@ -80,117 +80,119 @@ class Draw_cml_map():
             self.rawdata_path = self.data_path.joinpath(self.rawdata_dir)
         
         df_md = pd.read_csv(meta_path)
-        if 'Hop ID' not in df_md.columns.values:
-            hop_id = 'Not provided'
-            df_md['Hop ID'] = hop_id
-        if 'Link Carrier' not in df_md.columns.values:
-            carrier = 'Unknown carrier'
-            df_md['Link Carrier'] = carrier
+        df_md.columns = df_md.columns.str.lower()
+        if 'hop id' not in df_md.columns.values:
+            hop_id = 'not provided'
+            df_md['hop id'] = hop_id
+        if 'link carrier' not in df_md.columns.values:
+            carrier = 'unknown carrier'
+            df_md['link carrier'] = carrier
         else:
-            carriers = df_md['Link Carrier'].unique()
-            print('Carriers:')
+            df_md['link carrier'] = df_md['link carrier'].str.lower()
+            carriers = df_md['link carrier'].unique()
+            print('carriers:')
             print(carriers)
             d_colors = {
-                'Cellcom': 'purple',
-                'Pelephone': 'blue',
-                'PHI': 'orange',
-                'SMBIT': 'white',
-                'Unknown carrier': 'green'
+                'cellcom': 'purple',
+                'pelephone': 'blue',
+                'phi': 'orange',
+                'smbit': 'green',
+                'unknown carrier': 'black'
             }
             if self.color_of_links:
                 d_colors = {
-                    'Cellcom': self.color_of_links,
-                    'Pelephone': self.color_of_links,
-                    'PHI': self.color_of_links,
-                    'SMBIT': self.color_of_links,
-                    'Unknown carrier': self.color_of_links
+                    'cellcom': self.color_of_links,
+                    'pelephone': self.color_of_links,
+                    'phi': self.color_of_links,
+                    'smbit': self.color_of_links,
+                    'unknown carrier': self.color_of_links
                 }
     
-        df_md.drop_duplicates(subset='Link ID', inplace=True)
-        df_bool = df_md['Rx Site Longitude'].astype(bool)
+        df_md.drop_duplicates(subset='link id', inplace=True)
+        df_bool = df_md['rx site longitude'].astype(bool)
         df_md = df_md[df_bool]
         df_md.reset_index(inplace=True, drop=True)
     
         if math.isnan(self.area_min_lon):
-            self.area_min_lon = np.nanmin((np.nanmin(df_md['Tx Site Longitude'].values),
-                            np.nanmin(df_md['Rx Site Longitude'].values)))
+            self.area_min_lon = np.nanmin((np.nanmin(df_md['tx site longitude'].values),
+                            np.nanmin(df_md['rx site longitude'].values)))
         if math.isnan(self.area_max_lon):
-            self.area_max_lon = np.nanmax((np.nanmax(df_md['Tx Site Longitude'].values),
-                            np.nanmax(df_md['Rx Site Longitude'].values)))
+            self.area_max_lon = np.nanmax((np.nanmax(df_md['tx site longitude'].values),
+                            np.nanmax(df_md['rx site longitude'].values)))
         if math.isnan(self.area_min_lat):
-            self.area_min_lat = np.nanmin((np.nanmin(df_md['Tx Site Latitude'].values),
-                            np.nanmin(df_md['Rx Site Latitude'].values)))
+            self.area_min_lat = np.nanmin((np.nanmin(df_md['tx site latitude'].values),
+                            np.nanmin(df_md['rx site latitude'].values)))
         if math.isnan(self.area_max_lat):
-            self.area_max_lat = np.nanmax((np.nanmax(df_md['Tx Site Latitude'].values),
-                            np.nanmax(df_md['Rx Site Latitude'].values)))
+            self.area_max_lat = np.nanmax((np.nanmax(df_md['tx site latitude'].values),
+                            np.nanmax(df_md['rx site latitude'].values)))
     
         try:
-            df_md = df_md[df_md['Rx Site Longitude'] < self.area_max_lon]
-            df_md = df_md[df_md['Tx Site Longitude'] < self.area_max_lon]
+            df_md = df_md[df_md['rx site longitude'] < self.area_max_lon]
+            df_md = df_md[df_md['tx site longitude'] < self.area_max_lon]
         except:
             pass
         try:
-            df_md = df_md[df_md['Rx Site Longitude'] > self.area_min_lon]
-            df_md = df_md[df_md['Tx Site Longitude'] > self.area_min_lon]
+            df_md = df_md[df_md['rx site longitude'] > self.area_min_lon]
+            df_md = df_md[df_md['tx site longitude'] > self.area_min_lon]
         except:
             pass
         try:
-            df_md = df_md[df_md['Rx Site Latitude'] < self.area_max_lat]
-            df_md = df_md[df_md['Tx Site Latitude'] < self.area_max_lat]
+            df_md = df_md[df_md['rx site latitude'] < self.area_max_lat]
+            df_md = df_md[df_md['tx site latitude'] < self.area_max_lat]
         except:
             pass
         try:
-            df_md = df_md[df_md['Rx Site Latitude'] > self.area_min_lat]
-            df_md = df_md[df_md['Tx Site Latitude'] > self.area_min_lat]
+            df_md = df_md[df_md['rx site latitude'] > self.area_min_lat]
+            df_md = df_md[df_md['tx site latitude'] > self.area_min_lat]
         except:
             pass
     
         if self.distort_lat_lon:
-            df_md['Distort Rx Site Longitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
-            df_md['Distort Tx Site Longitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
-            df_md['Distort Rx Site Latitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
-            df_md['Distort Tx Site Latitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
+            df_md['distort rx site longitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
+            df_md['distort tx site longitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
+            df_md['distort rx site latitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
+            df_md['distort tx site latitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
     
-            df_md['Rx Site Longitude'] = df_md['Rx Site Longitude'] + df_md['Distort Rx Site Longitude']
-            df_md['Tx Site Longitude'] = df_md['Tx Site Longitude'] + df_md['Distort Tx Site Longitude']
-            df_md['Rx Site Latitude'] = df_md['Rx Site Latitude'] + df_md['Distort Rx Site Latitude']
-            df_md['Tx Site Latitude'] = df_md['Tx Site Latitude'] + df_md['Distort Tx Site Latitude']
+            df_md['rx site longitude'] = df_md['rx site longitude'] + df_md['distort rx site longitude']
+            df_md['tx site longitude'] = df_md['tx site longitude'] + df_md['distort tx site longitude']
+            df_md['rx site latitude'] = df_md['rx site latitude'] + df_md['distort rx site latitude']
+            df_md['tx site latitude'] = df_md['tx site latitude'] + df_md['distort tx site latitude']
     
         df_md.reset_index(inplace=True,drop=True)
-        num_cmls_map = len(df_md['Link ID'])
+        num_cmls_map = len(df_md['link id'])
     
         grid = []
     
         for i,link in df_md.iterrows():
-            link_id = link['Link ID']
+            link_id = link['link id']
             # color = self.color_of_links
-            self.color = d_colors[link['Link Carrier']]
+            self.color = d_colors[link['link carrier']]
             if link_id in self.list_of_link_id_to_color:
                 self.color = self.color_of_specific_links
             if link_id in self.list_of_link_id_to_drop:
-                print('Link ID' + str(link_id) + ' has been dropped')
+                print('link id' + str(link_id) + ' has been dropped')
                 num_cmls_map = num_cmls_map - 1
                 continue
-            if math.isnan(link['Rx Site Latitude']):
-                print('No metadata for link ' + str(link['Link ID']))
+            if math.isnan(link['rx site latitude']):
+                print('No metadata for link ' + str(link['link id']))
                 num_cmls_map = num_cmls_map - 1
                 continue
             else:
                 if self.rawdata_dir:
-                    self._process_rd(link, link_id, 'SINK_', 'PowerRLTMmin')
+                    self._process_rd(link, link_id, 'Cellcom_HC_RADIO_SINK_', 'PowerRLTMmin')
                     self._process_rd(link, link_id, 'PHI_TN_RFInputPower_', 'RFInputPower')
                     self._process_rd(link, link_id, 'Pelephone_TN_RFInputPower_', 'RFInputPower')
                 else:
-                    self.color = d_colors[link['Link Carrier']]
-                    folium.PolyLine([(link['Rx Site Latitude'],
-                                      link['Rx Site Longitude']),
-                                     (link['Tx Site Latitude'],
-                                      link['Tx Site Longitude'])],
+                    self.color = d_colors[link['link carrier']]
+                    folium.PolyLine([(link['rx site latitude'],
+                                      link['rx site longitude']),
+                                     (link['tx site latitude'],
+                                      link['tx site longitude'])],
                                     color=self.color,
                                     opacity=0.6,
-                                    popup=str(link['Link Carrier']) +\
-                                          '\nLink ID: ' + str(link['Link ID']) +\
-                                           '\nHop ID: ' + str(link['Hop ID'])
+                                    popup=str(link['link carrier']) +\
+                                          '\nLink ID: ' + str(link['link id']) +\
+                                           '\nHop ID: ' + str(link['hop id'])
                                 ).add_to(self.map_1)
     
         print('Number of links in map: ')
@@ -200,14 +202,14 @@ class Draw_cml_map():
     
         # plot gridlines
         if self.num_of_gridlines:
-            lat_min = np.nanmin((np.nanmin(df_md['Tx Site Latitude'].values),
-                                np.nanmin(df_md['Rx Site Latitude'].values)))
-            lon_min = np.nanmin((np.nanmin(df_md['Tx Site Longitude'].values),
-                                np.nanmin(df_md['Rx Site Longitude'].values)))
-            lat_max = np.nanmax((np.nanmax(df_md['Tx Site Latitude'].values),
-                                np.nanmax(df_md['Rx Site Latitude'].values)))
-            lon_max = np.nanmax((np.nanmax(df_md['Tx Site Longitude'].values),
-                                np.nanmax(df_md['Rx Site Longitude'].values)))
+            lat_min = np.nanmin((np.nanmin(df_md['tx site latitude'].values),
+                                np.nanmin(df_md['rx site latitude'].values)))
+            lon_min = np.nanmin((np.nanmin(df_md['tx site longitude'].values),
+                                np.nanmin(df_md['rx site longitude'].values)))
+            lat_max = np.nanmax((np.nanmax(df_md['tx site latitude'].values),
+                                np.nanmax(df_md['rx site latitude'].values)))
+            lon_max = np.nanmax((np.nanmax(df_md['tx site longitude'].values),
+                                np.nanmax(df_md['rx site longitude'].values)))
     
             lats = np.linspace(lat_min,lat_max,self.num_of_gridlines)
             lons = np.linspace(lon_min,lon_max,self.num_of_gridlines)
@@ -233,6 +235,7 @@ class Draw_cml_map():
         print('Map under the name ' + self.name_of_map_file + ' was generated.')
 
     def _process_rd(self, link, link_id, str_in_filename, str_rsl_col):
+        str_rsl_col = str_rsl_col.lower()
         appended_data = []
         # loop over raw data rsl 15 min or 24 h
         for filename in sorted(os.listdir(self.rawdata_path)):
@@ -244,31 +247,32 @@ class Draw_cml_map():
             pass
         else:
             df_ts = pd.concat(appended_data, sort=False)
-            df_ts = df_ts[df_ts['Interval'] == self.interval]
+            df_ts.columns = df_ts.columns.str.lower()
+            df_ts = df_ts[df_ts['interval'] == self.interval]
             df_ts.reset_index(inplace=True, drop=True)
-            df_ts['Date'] = pd.to_datetime(df_ts['Time'])
+            df_ts['date'] = pd.to_datetime(df_ts['time'])
 
             ## create json of each cml timeseries for plotting
-            df = df_ts[['Date', str_rsl_col]]
-            df.set_index('Date', inplace=True, drop=True)
+            df = df_ts[['date', str_rsl_col]]
+            df.set_index('date', inplace=True, drop=True)
             timeseries = vincent.Line(
                 df[[str_rsl_col]],
                 height=350,
                 width=750).axis_titles(
-                x=link['Link Carrier'] + ':  (Date)',
+                x=link['link carrier'] + ':  (Date)',
                 y='RSL (dB)'
             )
-            timeseries.legend(title='Link ID: ' + str(link['Link ID']) + \
-                                    '\nHop ID: ' + str(link['Hop ID']))
+            timeseries.legend(title='Link ID: ' + str(link['link id']) + \
+                                    '\nHop ID: ' + str(link['hop id']))
             data_json = json.loads(timeseries.to_json())
 
             v = folium.features.Vega(data_json, width=1000, height=400)
             p = folium.Popup(max_width=1150)
 
-            pl = folium.PolyLine([(link['Rx Site Latitude'],
-                                   link['Rx Site Longitude']),
-                                  (link['Tx Site Latitude'],
-                                   link['Tx Site Longitude'])],
+            pl = folium.PolyLine([(link['rx site latitude'],
+                                   link['rx site longitude']),
+                                  (link['tx site latitude'],
+                                   link['tx site longitude'])],
                                  color=self.color,
                                  opacity=0.6
                                  ).add_to(self.map_1)
