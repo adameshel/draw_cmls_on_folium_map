@@ -38,7 +38,6 @@ A .html file will be generated and when opening it youshould be able to see some
 When only metadata is loaded, clicking on a link should start a pop-up containing the link id, hop id and carrier. Clicking on a gridline should show its value.
 When raw-data is also incorporated, clicking on a link should show you the timeseries of the raw-data you have downloaded, e.g.:
 
-![Screen Shot 2022-03-20 at 16 01 29](https://user-images.githubusercontent.com/60098219/159166149-d231ac26-0037-43c9-b0b9-49cab1fcbe3c.png)
-
+![Screen Shot 2022-03-20 at 16 03 57](https://user-images.githubusercontent.com/60098219/159166254-02e78e0b-1c88-4a5d-b4c8-7229b9da9a80.png)
 
 
