@@ -165,10 +165,9 @@ class Draw_cml_map():
     
         for i,link in df_md.iterrows():
             link_id = link['link id']
+            hop_id = link['hop id']
             # color = self.color_of_links
             self.color = d_colors[link['link carrier']]
-            if link_id in self.list_of_link_id_to_color:
-                self.color = self.color_of_specific_links
             if link_id in self.list_of_link_id_to_drop:
                 print('link id' + str(link_id) + ' has been dropped')
                 num_cmls_map = num_cmls_map - 1
@@ -178,12 +177,15 @@ class Draw_cml_map():
                 num_cmls_map = num_cmls_map - 1
                 continue
             else:
+                if link_id in self.list_of_link_id_to_color or hop_id in self.list_of_link_id_to_color:
+                    self.color = self.color_of_specific_links
+                else:
+                    self.color = d_colors[link['link carrier']]
                 if self.rawdata_dir:
                     self._process_rd(link, link_id, 'Cellcom_HC_RADIO_SINK_', 'PowerRLTMmin')
                     self._process_rd(link, link_id, 'PHI_TN_RFInputPower_', 'RFInputPower')
                     self._process_rd(link, link_id, 'Pelephone_TN_RFInputPower_', 'RFInputPower')
                 else:
-                    self.color = d_colors[link['link carrier']]
                     folium.PolyLine([(link['rx site latitude'],
                                       link['rx site longitude']),
                                      (link['tx site latitude'],
