@@ -12,4 +12,5 @@ After the filtering of the desired raw-data is done, download both the metadata 
 
 <img width="630" alt="Screen Shot 2022-03-20 at 15 36 21" src="https://user-images.githubusercontent.com/60098219/159165005-8a0cd398-3ec0-4f5e-8806-ba0b6e44d8c3.png">
 
-
+# Directory
+Place both the metadata file and the raw-data folder in the same directory.
