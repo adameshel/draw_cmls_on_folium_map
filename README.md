@@ -6,4 +6,4 @@ The metadata file must include the following column names:
 If raw data files are given, the CMLs drawn on the map will be ones for which raw data is available.
 If not, the metadata will be drawn on the map. 
 
-`visualize.py` runs with point measuremetns as well. Both options will be operational in parallel for now, but will be merged to one executional code in the future.
+
