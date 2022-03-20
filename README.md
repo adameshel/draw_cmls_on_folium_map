@@ -31,4 +31,14 @@ Play around by running the file `run_example.py`, after changing the following l
 `raw_data_folder_name = 'rawdata'`
 
 # Outcome
+A .html file will be generated and when opening it youshould be able to see something like this:
+
+![Screen Shot 2022-03-20 at 15 57 16](https://user-images.githubusercontent.com/60098219/159165977-d15007ac-afc5-49e8-9e52-7f209f9f6e9a.png)
+
+When only metadata is loaded, clicking on a link should start a pop-up containing the link id, hop id and carrier. Clicking on a gridline should show its value.
+When raw-data is also incorporated, clicking on a link should show you the timeseries of the raw-data you have downloaded, e.g.:
+
+![Screen Shot 2022-03-20 at 16 01 29](https://user-images.githubusercontent.com/60098219/159166149-d231ac26-0037-43c9-b0b9-49cab1fcbe3c.png)
+
+
 
