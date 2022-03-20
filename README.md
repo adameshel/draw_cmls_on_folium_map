@@ -17,9 +17,9 @@ Place both the metadata file and the raw-data folder in the same directory.
 
 # Run
 run the file `run_example.py` after changing the following lines to your own needs:
-`name_map = 'my_map'
+`name_map = 'my_map'`
 dir_out = '/directory/of/out/'
 dir_data = '/directory/of/metadata/'
 md_filename_1 = 'metadata_file_name_1.csv'
 md_filename_2 = 'metadata_file_name_2.csv'
-raw_data_folder_name = 'rawdata'`
+`raw_data_folder_name = 'rawdata'`
