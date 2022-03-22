@@ -1,11 +1,13 @@
 # draw_cmls_on_folium_map
-First, `Draw_cml_map` is a `folium.Map` object, and therefore can be added all `folium` features to.
+First, `Draw_cml_map` is a `folium.Map` object, and therefore all regular `folium` features can be added to.
 
+# Description
 Visualize CML locations and raw-data on a map.
-The script reads a csv metadata file, and additional raw-data files (optional) and creates and html file.
+The script reads a csv metadata file and creates and html file of all the links on a 2D map.
 Generally, the metadata file must include the following column names:
 `link id, rx site latitude, tx site latitude, rx site longitude, tx site longitude`.
 The names `carrier` and `hop_id` are optional and will be assigned with `'unknown carrier'` and `not provided` if they do not exist, respectively.
+Availability of rawdata timeseries can also be visualized in the popups.
 
 In the Class `Draw_cml_map` you can can also:
 * Determine domain boundaries
@@ -24,9 +26,14 @@ If raw-data is not provided, the metadata will be drawn on the map.
 
 # Get the data from Omnisol system (recommended)
 If you choose to visualize data downloaded from the Omnisol system follow these steps.
-After the filtering of the desired raw-data is done, download both the metadata and the raw-data by clicking on the blue icons on the top right as shown here:
+After the filtering of the desired raw-data is done, download both the metadata and the raw-data (optional) by clicking on the blue icons on the top right as shown here:
 
 <img width="630" alt="Screen Shot 2022-03-20 at 15 36 21" src="https://user-images.githubusercontent.com/60098219/159165005-8a0cd398-3ec0-4f5e-8806-ba0b6e44d8c3.png">
+
+Another way of obtaining the metadata of your links is by checking all the boxes of the filtered data -> right click -> export -> export to csv.
+Metadata files can also be directly downloaded from the database.
+Specifically for the E-band frequancy links of SMBIT, it is even recommended since the metadata on the Omnisol system does not include all the links due to bugs in the system (the SMBIT rawdata file from the database can be fed to the Class "as-is" without changing the column names in the csv file).
+
 
 # Directory
 Place both the metadata file and the raw-data folder in the same directory.
