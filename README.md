@@ -12,6 +12,7 @@ In the Class `Draw_cml_map` you can can also:
 * Drop specific links
 * Add grid-lines
 * Create distortion to the locations of the base stations to avoid geographic overlaps
+* 
 All aforementions options are well documented in the description of the Class.
 
 # Raw-data RSL popups
