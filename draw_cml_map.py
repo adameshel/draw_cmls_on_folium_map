@@ -31,26 +31,22 @@ class Draw_cml_map():
                  color_of_links=None,
                  distort_lat_lon=True
             ):
-        '''Create a Folium interactive map of cmls:
-        self.out_path: str, path to output.
-        self.data_path: str, path to metadata file.
-        self.metadata_file_nameh: str, .csv file name.
-        self.rawdata_dir: (optional) directory of raw data files (for now only SINK-SOURCE).
-        handle: folium.vector_layers.PolyLine, a handle of an existing map you wish to
-        edit.
-        self.name_of_map_file: str, name of the output file.
-        self.interval: (int). 15 (default) for 15 minute measurement self.interval or 24 for 24 h
-        self.num_of_gridlines: int, number of gridlines for lat and for lon.
-        self.area_min_lon, self.area_max_lon, self.area_min_lat, self.area_max_lat: float, filter area
+        '''Create a Folium interactive map of lines (cmls):
+        out_path: str, path to output (created automatically if not provided).
+        data_path: str, path to metadata file.
+        metadata_file_nameh: str, .csv file name.
+        rawdata_dir: (optional) directory of raw data files (for now only SINK-SOURCE).
+        name_of_map_file: str, name of the output file.
+        interval: (int). 15 (default) for 15 minute measurement interval or 24 for 24 h
+        num_of_gridlines: int, number of gridlines for lat and for lon.
+        area_min_lon, area_max_lon, area_min_lat, area_max_lat: float, filter area
         of interest by setting coordinates boundaries.
-        self.list_of_link_id_to_drop: list of strings, links you wish to discard .
-        self.list_of_link_id_to_color: color specific links in different colors.
-        self.color_of_links: str, color of links from a given csv file
-        self.distort_lat_lon: Distort the coordinates to see links on the same hop when zoomed in.
-    
-        The function returns a handle for further editing of the .html file.
-        By using the handle multiple companies can be plotted by calling the function
-        for each of them while drawing them in different colors.
+        list_of_link_id_to_drop: list of strings, links you wish to discard .
+        list_of_link_id_to_color: color specific links in different colors.
+        color_of_links: str, color of links from a given csv file
+        distort_lat_lon: Distort the coordinates to see links on the same hop when zoomed in.
+
+        The object can be called multiple times so that more information can be added onto it.
         '''
 
         self.out_path = out_path
