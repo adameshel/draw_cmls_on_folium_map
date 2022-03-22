@@ -30,7 +30,7 @@ After the filtering of the desired raw-data is done, download both the metadata 
 
 <img width="630" alt="Screen Shot 2022-03-20 at 15 36 21" src="https://user-images.githubusercontent.com/60098219/159165005-8a0cd398-3ec0-4f5e-8806-ba0b6e44d8c3.png">
 
-Another way of obtaining the metadata of your links is by checking all the boxes of the filtered data -> right click -> export -> export to csv.
+Another way of obtaining the metadata of your links is by checking all the boxes of the filtered data --> right click --> export --> export to csv.
 Metadata files can also be directly downloaded from the database.
 Specifically for the E-band frequancy links of SMBIT, it is even recommended since the metadata on the Omnisol system does not include all the links due to bugs in the system (the SMBIT rawdata file from the database can be fed to the Class "as-is" without changing the column names in the csv file).
 
@@ -53,7 +53,7 @@ Play around by running the file `run_example.py`, after changing the following l
 
 `raw_data_folder_name = 'rawdata'`
 
-# Outcome
+# Output
 An .html file will be generated and when opening it youshould be able to see something like this:
 
 ![Screen Shot 2022-03-20 at 15 57 16](https://user-images.githubusercontent.com/60098219/159165977-d15007ac-afc5-49e8-9e52-7f209f9f6e9a.png)
