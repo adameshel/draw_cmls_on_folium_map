@@ -20,7 +20,7 @@ Note that the variable `interval` is set to 15 (minutes) by default. Change it a
 
 If raw-data is not provided, the metadata will be drawn on the map. 
 
-# Get the data from Omnisol system
+# Get the data from Omnisol system (recommended)
 If you choose to visualize data downloaded from the Omnisol system follow these steps.
 After the filtering of the desired raw-data is done, download both the metadata and the raw-data by clicking on the blue icons on the top right as shown here:
 
