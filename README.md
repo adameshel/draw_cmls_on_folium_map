@@ -3,7 +3,6 @@ Visualize CML locations and raw-data on a map.
 The script reads a csv metadata file, and additional raw-data files (optional) and creates and html file.
 Generally, the metadata file must include the following column names:
 `link id, rx site latitude, tx site latitude, rx site longitude, tx site longitude`.
-
 The names `carrier` and `hop_id` are optional and will be assigned with `'unknown carrier'` and `not provided` if they do not exist, respectively.
 
 In the Class `Draw_cml_map` you can can also:
