@@ -1,4 +1,6 @@
 # draw_cmls_on_folium_map
+First, `Draw_cml_map` is a `folium.Map` object, and therefore can be added all `folium` features to.
+
 Visualize CML locations and raw-data on a map.
 The script reads a csv metadata file, and additional raw-data files (optional) and creates and html file.
 Generally, the metadata file must include the following column names:
@@ -11,7 +13,7 @@ In the Class `Draw_cml_map` you can can also:
 * Drop specific links
 * Add grid-lines
 * Create distortion to the locations of the base stations to avoid geographic overlaps
-* 
+
 All aforementions options are well documented in the description of the Class.
 
 # Raw-data RSL popups
