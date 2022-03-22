@@ -81,32 +81,33 @@ class Draw_cml_map():
         
         df_md = pd.read_csv(meta_path)
         df_md.columns = df_md.columns.str.lower()
+        if 'link id' not in df_md.columns:
+            df_md = self._process_smbit_md(df_md)
         if 'hop id' not in df_md.columns.values:
             hop_id = 'not provided'
             df_md['hop id'] = hop_id
         if 'link carrier' not in df_md.columns.values:
             carrier = 'unknown carrier'
             df_md['link carrier'] = carrier
-        else:
-            df_md['link carrier'] = df_md['link carrier'].str.lower()
-            carriers = df_md['link carrier'].unique()
-            print('carriers:')
-            print(carriers)
+        df_md['link carrier'] = df_md['link carrier'].str.lower()
+        carriers = df_md['link carrier'].unique()
+        print('carriers:')
+        print(carriers)
+        d_colors = {
+            'cellcom': 'purple',
+            'pelephone': 'blue',
+            'phi': 'orange',
+            'smbit': 'green',
+            'unknown carrier': 'black'
+        }
+        if self.color_of_links:
             d_colors = {
-                'cellcom': 'purple',
-                'pelephone': 'blue',
-                'phi': 'orange',
-                'smbit': 'green',
-                'unknown carrier': 'black'
+                'cellcom': self.color_of_links,
+                'pelephone': self.color_of_links,
+                'phi': self.color_of_links,
+                'smbit': self.color_of_links,
+                'unknown carrier': self.color_of_links
             }
-            if self.color_of_links:
-                d_colors = {
-                    'cellcom': self.color_of_links,
-                    'pelephone': self.color_of_links,
-                    'phi': self.color_of_links,
-                    'smbit': self.color_of_links,
-                    'unknown carrier': self.color_of_links
-                }
     
         df_md.drop_duplicates(subset='link id', inplace=True)
         df_bool = df_md['rx site longitude'].astype(bool)
@@ -182,9 +183,22 @@ class Draw_cml_map():
                 else:
                     self.color = d_colors[link['link carrier']]
                 if self.rawdata_dir:
-                    self._process_rd(link, link_id, 'Cellcom_HC_RADIO_SINK_', 'PowerRLTMmin')
-                    self._process_rd(link, link_id, 'PHI_TN_RFInputPower_', 'RFInputPower')
-                    self._process_rd(link, link_id, 'Pelephone_TN_RFInputPower_', 'RFInputPower')
+                    try:
+                        self._process_rd(link, link_id, 'Cellcom_HC_RADIO_SINK_', 'PowerRLTMmin')
+                    except:
+                        pass
+                    try:
+                        self._process_rd(link, link_id, 'PHI_TN_RFInputPower_', 'RFInputPower')
+                    except:
+                        pass
+                    try:
+                        self._process_rd(link, link_id, 'Pelephone_TN_RFInputPower_', 'RFInputPower')
+                    except:
+                        pass
+                    try:
+                        self._process_rd(link, link_id, 'SMBIT', 'lastvalue')
+                    except:
+                        pass
                 else:
                     folium.PolyLine([(link['rx site latitude'],
                                       link['rx site longitude']),
@@ -241,7 +255,14 @@ class Draw_cml_map():
         appended_data = []
         # loop over raw data rsl 15 min or 24 h
         for filename in sorted(os.listdir(self.rawdata_path)):
-            if str_in_filename + link_id in filename:
+            if 'SMBIT' in filename and link_id in filename.lower():
+                f = open(self.rawdata_path.joinpath(filename))
+                f_content = self._load_json_file(f)
+                dic = self._load_raw_data(f_content, str_rsl_col)
+                df_temp = pd.DataFrame(dic, dtype=np.int32)
+                df_temp['time'] = pd.to_datetime(df_temp['clk'], unit='s')
+                appended_data.append(df_temp)
+            elif str_in_filename + link_id in filename:
                 # if link_id in filename:
                 df_temp = pd.read_csv(self.rawdata_path.joinpath(filename))
                 appended_data.append(df_temp)
@@ -250,7 +271,10 @@ class Draw_cml_map():
         else:
             df_ts = pd.concat(appended_data, sort=False)
             df_ts.columns = df_ts.columns.str.lower()
-            df_ts = df_ts[df_ts['interval'] == self.interval]
+            try:
+                df_ts = df_ts[df_ts['interval'] == self.interval]
+            except:
+                pass
             df_ts.reset_index(inplace=True, drop=True)
             df_ts['date'] = pd.to_datetime(df_ts['time'])
 
@@ -281,6 +305,75 @@ class Draw_cml_map():
             pl.add_child(p)
             p.add_child(v)
 
-        
+    def _load_json_file(self, file):
+        # Load and fix the file to json
+        data_str = file.read()
+        data_str = data_str.replace("'", '"')
+        data_str = data_str.replace("datetime", '"datetime')
+        data_str = data_str.replace(")", ')"')
+        return json.loads(data_str)
+
+    def _load_raw_data(self, file, str_rsl_col):
+        # returns a dictionary containing clock and rsl values for the file data
+        rsl = [float(d['siklu.rssavg']['lastvalue']) for d in file if
+               d['siklu.rssavg']['lastclock'] != '0']  # Add rsl if it is not empty
+        clk = [int(d['siklu.rssavg']['lastclock']) + 7200 for d in file if
+               d['siklu.rssavg']['lastclock'] != '0']  # Add 2 hours to clock value
+        dic = {}
+        dic[str_rsl_col] = rsl
+        dic['clk'] = clk
+        return dic
+
+    def _process_smbit_md(self, df):
+        if 'link carrier' not in df.columns.values:
+            carrier = 'smbit'
+            df['link carrier'] = carrier
+        df_1 = df[['link carrier', 'hop_name', 'site1_longitude', 'site1_latitude',
+                   'site2_longitude', 'site2_latitude', 'up_valid_names']]
+        df_1.rename(columns={'hop_name':'hop id',
+                             'site1_longitude':'rx site longitude',
+                             'site1_latitude':'rx site latitude',
+                             'site2_longitude':'tx site longitude',
+                             'site2_latitude':'tx site latitude',
+                             'up_valid_names':'link id'}, inplace=True)
+        for i,row in df_1.iterrows():
+            try:
+                if ',' in row['link id']:
+                    str0 = row['link id'].split(',')[0]
+                    str1 = row['link id'].split(',')[1]
+                    df_1.iat[i, df_1.columns.get_loc('link id')] = str0
+                    df_1 = df_1.append(df_1.iloc[i], ignore_index=True)
+                    df_1.iat[-1, df_1.columns.get_loc('link id')] = str1
+            except:
+                pass
+
+        df_2 = df[['link carrier', 'hop_name', 'site1_longitude', 'site1_latitude',
+                   'site2_longitude', 'site2_latitude', 'down_valid_names']]
+        df_2.rename(columns={'hop_name': 'hop id',
+                             'site1_longitude': 'rx site longitude',
+                             'site1_latitude': 'rx site latitude',
+                             'site2_longitude': 'tx site longitude',
+                             'site2_latitude': 'tx site latitude',
+                             'down_valid_names': 'link id'}, inplace=True)
+        for i,row in df_2.iterrows():
+            try:
+                if ',' in row['link id']:
+                    str0 = row['link id'].split(',')[0]
+                    str1 = row['link id'].split(',')[1]
+                    df_2.iat[i, df_2.columns.get_loc('link id')] = str0
+                    df_2 = df_2.append(df_2.iloc[i], ignore_index=True)
+                    df_2.iat[-1, df_2.columns.get_loc('link id')] = str1
+            except:
+                pass
+        df_new = pd.concat([df_1, df_2], ignore_index=True)
+        df_new['link id'] = df_new['link id'].str.lower()
+        for i, row in df_new.iterrows():
+            try:
+                if 'siklu_' in row['link id']:
+                    str1 = row['link id'].split('siklu_')[1]
+                    df_new.iat[i, df_new.columns.get_loc('link id')] = str1
+            except:
+                pass
+        return df_new
 
 
