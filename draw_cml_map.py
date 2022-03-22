@@ -281,6 +281,30 @@ class Draw_cml_map():
             pl.add_child(p)
             p.add_child(v)
 
-        
+    def _load_json_file(self, file):
+        # Load and fix the file to json
+        data_str = file.read()
+        data_str = data_str.replace("'", '"')
+        data_str = data_str.replace("datetime", '"datetime')
+        data_str = data_str.replace(")", ')"')
+        return json.loads(data_str)
+
+    def get_hop_id_from_file(file, names):
+        # Returns hop ID and hop's direction
+        name = file[0]['name'].lower()
+        name1, name2 = parse_hop_name(name)
+        if name1 in names:
+            direction = 'up'
+            hop_id = names.index(name1) + 1
+            # hop_name = name1
+        elif name2 in names:
+            direction = 'down'
+            hop_id = names.index(name2) + 1
+            # hop_name = name2
+        else:
+            print('Hop name not available')
+            hop_id = -1
+            direction = 'up'
+        return hop_id, direction
 
 
