@@ -302,7 +302,7 @@ class Draw_cml_map():
             p.add_child(v)
 
     def _load_json_file(self, file):
-        # Load and fix the file to json
+        # Load and fix the file to json- SMBIT
         data_str = file.read()
         data_str = data_str.replace("'", '"')
         data_str = data_str.replace("datetime", '"datetime')
@@ -310,7 +310,7 @@ class Draw_cml_map():
         return json.loads(data_str)
 
     def _load_raw_data(self, file, str_rsl_col):
-        # returns a dictionary containing clock and rsl values for the file data
+        # returns a dictionary containing clock and rsl values- SMBIT
         rsl = [float(d['siklu.rssavg']['lastvalue']) for d in file if
                d['siklu.rssavg']['lastclock'] != '0']  # Add rsl if it is not empty
         clk = [int(d['siklu.rssavg']['lastclock']) + 7200 for d in file if
@@ -321,6 +321,7 @@ class Draw_cml_map():
         return dic
 
     def _process_smbit_md(self, df):
+        # usen in case the metadata file is not from Omnisol- SMBIT
         if 'link carrier' not in df.columns.values:
             carrier = 'smbit'
             df['link carrier'] = carrier
