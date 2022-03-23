@@ -78,7 +78,20 @@ class Draw_cml_map():
         df_md = pd.read_csv(meta_path)
         df_md.columns = df_md.columns.str.lower()
         if 'link id' not in df_md.columns:
-            df_md = self._process_smbit_md(df_md)
+            if 'link_id' in df_md.columns:
+                try:
+                    df_md.rename(columns={'hop_id':'hop id',
+                                          'link_id':'link id',
+                                          'txsite_longitude':'tx site longitude',
+                                          'txsite_latitude': 'tx site latitude',
+                                          'rxsite_longitude': 'rx site longitude',
+                                          'rxsite_latitude': 'rx site latitude',
+                                          'carrier': 'link carrier'},
+                                 inplace=True)
+                except:
+                    pass
+            else:
+                df_md = self._process_smbit_md(df_md)
         if 'hop id' not in df_md.columns.values:
             hop_id = 'not provided'
             df_md['hop id'] = hop_id
@@ -94,6 +107,7 @@ class Draw_cml_map():
             'pelephone': 'blue',
             'phi': 'orange',
             'smbit': 'green',
+            'ericsson': 'blue',
             'unknown carrier': 'black'
         }
         if self.color_of_links:
@@ -102,6 +116,7 @@ class Draw_cml_map():
                 'pelephone': self.color_of_links,
                 'phi': self.color_of_links,
                 'smbit': self.color_of_links,
+                'ericsson': self.color_of_links,
                 'unknown carrier': self.color_of_links
             }
     
@@ -143,7 +158,7 @@ class Draw_cml_map():
             df_md = df_md[df_md['tx site latitude'] > self.area_min_lat]
         except:
             pass
-    
+
         if self.distort_lat_lon:
             df_md['distort rx site longitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
             df_md['distort tx site longitude'] = np.random.randint(-5, 5, df_md.shape[0]) / 10000
@@ -193,6 +208,10 @@ class Draw_cml_map():
                         pass
                     try:
                         self._process_rd(link, link_id, 'SMBIT', 'lastvalue')
+                    except:
+                        pass
+                    try:
+                        self._process_rd(link, link_id, 'Ericsson_MW_', 'rsl')
                     except:
                         pass
                 else:
@@ -249,7 +268,7 @@ class Draw_cml_map():
     def _process_rd(self, link, link_id, str_in_filename, str_rsl_col):
         str_rsl_col = str_rsl_col.lower()
         appended_data = []
-        # loop over raw data rsl 15 min or 24 h
+        # loop over rsl raw data
         for filename in sorted(os.listdir(self.rawdata_path)):
             if 'SMBIT' in filename and link_id in filename.lower():
                 f = open(self.rawdata_path.joinpath(filename))
@@ -260,7 +279,13 @@ class Draw_cml_map():
                 appended_data.append(df_temp)
             elif str_in_filename + link_id in filename:
                 # if link_id in filename:
-                df_temp = pd.read_csv(self.rawdata_path.joinpath(filename))
+                if str_in_filename=='Ericsson_MW_':
+                    cols_names = ['time','link id','tsl', str_rsl_col]
+                    df_temp = pd.read_csv(self.rawdata_path.joinpath(filename),
+                                          names=cols_names,
+                                          header=None)
+                else:
+                    df_temp = pd.read_csv(self.rawdata_path.joinpath(filename))
                 appended_data.append(df_temp)
         if not appended_data:
             pass
