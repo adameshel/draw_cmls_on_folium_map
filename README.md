@@ -6,7 +6,7 @@ Visualize CML locations and raw-data on a map.
 The script reads a csv metadata file and creates and html file of all the links on a 2D map.
 Generally, the metadata file must include the following column names:
 `link id, rx site latitude, tx site latitude, rx site longitude, tx site longitude`.
-The names `carrier` and `hop_id` are optional and will be assigned with `'unknown carrier'` and `not provided` if they do not exist, respectively.
+The names `carrier` and `hop_id` are optional and will be assigned with `unknown carrier` and `not provided` if they do not exist, respectively.
 Availability of rawdata timeseries can also be visualized in the popups.
 
 In the Class `Draw_cml_map` you can can also:
@@ -56,7 +56,7 @@ Play around by running the file `run_example.py`, after changing the following l
 # Output
 An .html file will be generated and when opening it youshould be able to see something like this:
 
-![Screen Shot 2022-03-20 at 15 57 16](https://user-images.githubusercontent.com/60098219/159165977-d15007ac-afc5-49e8-9e52-7f209f9f6e9a.png)
+<img width="630" alt="Screen Shot 2022-03-20 at 15 36 21" src="https://user-images.githubusercontent.com/60098219/159165977-d15007ac-afc5-49e8-9e52-7f209f9f6e9a.png">
 
 When only metadata is loaded, clicking on a link should start a pop-up containing the link id, hop id and carrier. Clicking on a gridline should show its value.
 When raw-data is also incorporated, clicking on a link should show you the timeseries of the raw-data you have downloaded, e.g.:
