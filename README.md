@@ -62,3 +62,7 @@ When only metadata is loaded, clicking on a link should start a pop-up containin
 When raw-data is also incorporated, clicking on a link should show you the timeseries of the raw-data you have downloaded, e.g.:
 
 ![Screen Shot 2022-03-20 at 16 07 35](https://user-images.githubusercontent.com/60098219/159166464-74643a39-d2ee-4436-b561-a190c6e2c158.png)
+
+# New types of data
+Not all the types of data can be processed. 
+In case your type of RSL is unknown to this class, go ahead and edit the function `self._process_rd` so that it fits your data.
