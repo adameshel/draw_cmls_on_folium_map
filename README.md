@@ -3,7 +3,7 @@ First, `Draw_cml_map` is a `folium.Map` object, and therefore all regular `foliu
 
 # Description
 Visualize CML locations and raw-data on a map.
-The script reads a csv metadata file and creates and html file of all the links on a 2D map.
+The script reads a csv metadata file and creates an html file of all the links on a 2D map.
 Generally, the metadata file must include the following column names:
 `link id, rx site latitude, tx site latitude, rx site longitude, tx site longitude`.
 The names `carrier` and `hop_id` are optional and will be assigned with `unknown carrier` and `not provided` if they do not exist, respectively.
