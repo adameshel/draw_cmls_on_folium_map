@@ -80,16 +80,59 @@ class Draw_cml_map():
         if 'link id' not in df_md.columns:
             if 'link_id' in df_md.columns:
                 try:
-                    df_md.rename(columns={'hop_id':'hop id',
-                                          'link_id':'link id',
-                                          'txsite_longitude':'tx site longitude',
-                                          'txsite_latitude': 'tx site latitude',
-                                          'rxsite_longitude': 'rx site longitude',
-                                          'rxsite_latitude': 'rx site latitude',
-                                          'carrier': 'link carrier'},
-                                 inplace=True)
+                    df_md.rename(columns={'hop_id': 'hop id'}, inplace=True)
                 except:
                     pass
+                try:
+                    df_md.rename(columns={'link_id':'link id'}, inplace=True)
+                except:
+                    pass
+                try:
+                    df_md.rename(columns={'txsite_longitude':'tx site longitude'}, inplace=True)
+                except:
+                    pass
+                try:
+                    df_md.rename(columns={'txsite_latitude': 'tx site latitude'}, inplace=True)
+                except:
+                    pass
+                try:
+                    df_md.rename(columns={'rxsite_longitude': 'rx site longitude'}, inplace=True)
+                except:
+                    pass
+                try:
+                    df_md.rename(columns={'rxsite_latitude': 'rx site latitude'}, inplace=True)
+                except:
+                    pass
+                try:
+                    df_md.rename(columns={'carrier': 'link carrier'}, inplace=True)
+                except:
+                    pass
+                try:
+                    df_md.rename(columns={'tx_site_longitude':'tx site longitude'}, inplace=True)
+                except:
+                    pass
+                try:
+                    df_md.rename(columns={'tx_site_latitude': 'tx site latitude'}, inplace=True)
+                except:
+                    pass
+                try:
+                    df_md.rename(columns={'rx_site_longitude': 'rx site longitude'}, inplace=True)
+                except:
+                    pass
+                try:
+                    df_md.rename(columns={'rx_site_latitude': 'rx site latitude'}, inplace=True)
+                except:
+                    pass
+                #     df_md.rename(columns={'hop_id':'hop id',
+                #                           'link_id':'link id',
+                #                           'txsite_longitude':'tx site longitude',
+                #                           'txsite_latitude': 'tx site latitude',
+                #                           'rxsite_longitude': 'rx site longitude',
+                #                           'rxsite_latitude': 'rx site latitude',
+                #                           'carrier': 'link carrier'},
+                #                  inplace=True)
+                # except:
+                #     pass
             else:
                 df_md = self._process_smbit_md(df_md)
         if 'hop id' not in df_md.columns.values:
